@@ -29,13 +29,17 @@ async def chatjoin(user_id: int) -> bool:
 
     if not is_subscribed:
         await bot.send_message(
-            chat_id=user_id, text="⚠️ Botdan foydalanish uchun barcha kanallarga obuna bo'ling.", reply_markup=btn.as_markup()
+            chat_id=user_id, text="⚠️ <b>Botdan foydalanish uchun barcha kanallarga obuna bo'ling.</b>", reply_markup=btn.as_markup()
         )
         return False
     return True
 
 
 canal = InlineKeyboardBuilder()
-canal.add(InlineKeyboardButton(text='⚜️ Kanalga admin qilish', callback_data='canal_admin'))
+canal.add(InlineKeyboardButton(text='📎 Botdan foydalanish', callback_data='canal_admin'))
 canal.add(InlineKeyboardButton(text='💫 Yordam', callback_data='canal_help'))
 canal.adjust(1)
+
+
+menu = InlineKeyboardBuilder()
+menu.add(InlineKeyboardButton(text='🔝 Asosiy menyu', callback_data='canal_main'))

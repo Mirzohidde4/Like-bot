@@ -6,7 +6,8 @@ from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.context import FSMContext
 from config import TOKEN
-from check import chatjoin, canal
+from check import chatjoin, canal, menu
+from datebase import Add_db, Read_db, UpdateLike, UpdateDislike
 
 
 logging.basicConfig(level=logging.INFO)
@@ -23,7 +24,7 @@ async def start(message: Message):
             text=f"""
                 🤝 Assalomu alaykum {html.bold(user)}.
 
-👍/👎- Bot yordamida kanalingizga tashlangan postlaringizga like va dislike tugmalarini qo‘yishingiz mumkin.
+👍/👎- <b>Bot yordamida kanalingizga tashlangan postlaringizga like va dislike tugmalarini qo'yishingiz mumkin.</b>
             """,
             reply_markup=canal.as_markup()
         )
@@ -39,17 +40,117 @@ async def result(call: CallbackQuery):
             text=f"""
                 🤝 Assalomu alaykum {html.bold(user)} xush kelibsiz, botdan foydalanishingiz mumkin.
 
-👍/👎- Bot yordamida kanalingizga tashlangan postlaringizga like va dislike tugmalarini qo'yishingiz mumkin.
+👍/👎- <b>Bot yordamida kanalingizga tashlangan postlaringizga like va dislike tugmalarini qo'yishingiz mumkin.</b>
             """,
             reply_markup=canal.as_markup()
         )
 
 
-# @dp.callback_query(F.data == 'canal_admin')
-# async def qoshish(call: CallbackQuery):
-#     sd = await bot.get_chat_administrators('-1002066217705')
-#     print(sd)
+@dp.callback_query(F.data.startswith('canal_'))
+async def qoshish(call: CallbackQuery, state: FSMContext):
+    await call.message.delete()
+    action = call.data.split('_')
+    second = action[1]
 
+    if second == 'main':
+        await call.message.answer(
+            text="""
+                🏠 <b>Asosiy menyu.
+
+👍/👎- Bot yordamida kanalingizga tashlangan postlaringizga like va dislike tugmalarini qo'yishingiz mumkin.</b>
+            """,
+            reply_markup=canal.as_markup()
+        )
+
+    elif second == 'admin':
+        await call.message.answer(
+            text=f"""
+                <b>⚜️ Shartlar :
+1. Botni (@likeipostbot) kanalingizga qo'shing.
+    
+2. Botni kanalingizda administratorlar ro'yxatiga qo'shing.</b>
+            """, reply_markup=menu.as_markup()
+        )
+    
+
+@dp.channel_post()
+async def echo_handler(message: Message):
+    Add_db(chat_id=message.chat.id, message_id=message.message_id, like=0, dislike=0)
+    await bot.edit_message_text(
+        chat_id=str(message.chat.id),
+        message_id=str(message.message_id),
+        text=message.text,
+        reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=[
+                [InlineKeyboardButton(text="👍", callback_data='post_like'), InlineKeyboardButton(text="👎", callback_data='post_dislike')]
+            ]
+        )
+    )
+
+
+@dp.callback_query(F.data.startswith('post'))
+async def edt(call: CallbackQuery):
+    action = call.data.split('_')
+    btn = action[1]
+
+    if btn == 'like':
+        print(f"\n\n{call.from_user.id}\n\n")
+        posts = Read_db()
+        for post in posts:
+            if (post[0] == call.message.chat.id) and (post[1] == call.message.message_id):
+                like = int(post[2]) + 1
+                dislike = post[3]
+                UpdateLike(like=like, chat_id=call.message.chat.id, message_id=call.message.message_id)
+                
+                txt = call.message.text
+                await bot.edit_message_text(
+                    chat_id=str(call.message.chat.id),
+                    message_id=str(call.message.message_id),
+                    text=txt,                    
+                    reply_markup=InlineKeyboardMarkup(
+                        inline_keyboard=[
+                            [InlineKeyboardButton(text=f"👍{like}", callback_data='post_like'), InlineKeyboardButton(text=f"👎{dislike}", callback_data='post_dislike')]
+                        ]
+                    )
+                )
+    
+    elif btn == 'dislike':
+        posts = Read_db()
+        for post in posts:
+            if (post[0] == call.message.chat.id) and (post[1] == call.message.message_id):
+                like = post[2]
+                dislike = post[3] + 1
+                UpdateDislike(dislike=dislike, chat_id=call.message.chat.id, message_id=call.message.message_id)
+
+                txt = call.message.text
+                await bot.edit_message_text(
+                    chat_id=str(call.message.chat.id),
+                    message_id=str(call.message.message_id),
+                    text=txt,                    
+                    reply_markup=InlineKeyboardMarkup(
+                        inline_keyboard=[
+                            [InlineKeyboardButton(text=f"👍{like}", callback_data='post_like'), InlineKeyboardButton(text=f"👎{dislike}", callback_data='post_dislike')]
+                        ]
+                    )
+                )
+
+
+
+
+
+
+@dp.message(F.text)
+async def restart(message: Message):
+    await message.reply("botni qayta ishga tushirish uchun /start ni boshing.")
+
+
+    # chat_id = '-1002066217705'
+    # admins = await bot.get_chat_administrators(chat_id)
+    # admin_usernames = [admin.user.username for admin in admins if admin.user.username]
+    # admin_names = [admin.user.first_name for admin in admins if not admin.user.username]
+    # response = "Administrators in this chat:\n"
+    # response += "\n".join(admin_usernames + admin_names)
+    # print(response)
 
 
 async def main():
