@@ -7,7 +7,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.context import FSMContext
 from config import TOKEN
 from check import chatjoin, canal, menu
-from datebase import Add_db, Read_db, UpdateLike, UpdateDislike
+from datebase import Add_db, Read_db, UpdateLike, UpdateDislike, AddUser, ReadUser 
 
 
 logging.basicConfig(level=logging.INFO)
@@ -93,46 +93,56 @@ async def edt(call: CallbackQuery):
     action = call.data.split('_')
     btn = action[1]
 
-    if btn == 'like':
-        print(f"\n\n{call.from_user.id}\n\n")
-        posts = Read_db()
-        for post in posts:
-            if (post[0] == call.message.chat.id) and (post[1] == call.message.message_id):
-                like = int(post[2]) + 1
-                dislike = post[3]
-                UpdateLike(like=like, chat_id=call.message.chat.id, message_id=call.message.message_id)
-                
-                txt = call.message.text
-                await bot.edit_message_text(
-                    chat_id=str(call.message.chat.id),
-                    message_id=str(call.message.message_id),
-                    text=txt,                    
-                    reply_markup=InlineKeyboardMarkup(
-                        inline_keyboard=[
-                            [InlineKeyboardButton(text=f"👍{like}", callback_data='post_like'), InlineKeyboardButton(text=f"👎{dislike}", callback_data='post_dislike')]
-                        ]
-                    )
-                )
-    
-    elif btn == 'dislike':
-        posts = Read_db()
-        for post in posts:
-            if (post[0] == call.message.chat.id) and (post[1] == call.message.message_id):
-                like = post[2]
-                dislike = post[3] + 1
-                UpdateDislike(dislike=dislike, chat_id=call.message.chat.id, message_id=call.message.message_id)
+    users = ReadUser()
+    for user in users:
+        if (user[0] == call.from_user.id) and (user[1] == call.message.chat.id) and (user[2] == call.message.message_id):
+            await call.answer(text="siz boshqa ovoz bera olmaysiz")
+            return
+    else:    
+        AddUser(user_id=call.from_user.id, chat_id=call.message.chat.id, message_id=call.message.message_id)    
 
-                txt = call.message.text
-                await bot.edit_message_text(
-                    chat_id=str(call.message.chat.id),
-                    message_id=str(call.message.message_id),
-                    text=txt,                    
-                    reply_markup=InlineKeyboardMarkup(
-                        inline_keyboard=[
-                            [InlineKeyboardButton(text=f"👍{like}", callback_data='post_like'), InlineKeyboardButton(text=f"👎{dislike}", callback_data='post_dislike')]
-                        ]
+        if btn == 'like':
+
+            posts = Read_db()
+            for post in posts:
+                if (post[0] == call.message.chat.id) and (post[1] == call.message.message_id):
+                    like = int(post[2]) + 1
+                    dislike = post[3]
+                    UpdateLike(like=like, chat_id=call.message.chat.id, message_id=call.message.message_id)
+                    
+                    txt = call.message.text
+                    await bot.edit_message_text(
+                        chat_id=str(call.message.chat.id),
+                        message_id=str(call.message.message_id),
+                        text=txt,                    
+                        reply_markup=InlineKeyboardMarkup(
+                            inline_keyboard=[
+                                [InlineKeyboardButton(text=f"👍{like}", callback_data='post_like'), InlineKeyboardButton(text=f"👎{dislike}", callback_data='post_dislike')]
+                            ]
+                        )
                     )
-                )
+                    await call.answer(text="👍+1 @likeipostbot")
+        
+        elif btn == 'dislike':
+            posts = Read_db()
+            for post in posts:
+                if (post[0] == call.message.chat.id) and (post[1] == call.message.message_id):
+                    like = post[2]
+                    dislike = post[3] + 1
+                    UpdateDislike(dislike=dislike, chat_id=call.message.chat.id, message_id=call.message.message_id)
+
+                    txt = call.message.text
+                    await bot.edit_message_text(
+                        chat_id=str(call.message.chat.id),
+                        message_id=str(call.message.message_id),
+                        text=txt,                    
+                        reply_markup=InlineKeyboardMarkup(
+                            inline_keyboard=[
+                                [InlineKeyboardButton(text=f"👍{like}", callback_data='post_like'), InlineKeyboardButton(text=f"👎{dislike}", callback_data='post_dislike')]
+                            ]
+                        )
+                    )
+                    await call.answer(text="👍+1 @likeipostbot")
 
 
 

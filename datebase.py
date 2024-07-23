@@ -6,11 +6,10 @@ def create_table():
     try:
         connection= sqlite3.connect('sqlite3.db')
 
-        table = """ CREATE TABLE Posts (
+        table = """ CREATE TABLE Users (
+                    user_id BIGINT NOT NULL ,
                     chat_id BIGINT NOT NULL ,
-                    message_id BIGINT NOT NULL ,
-                    like INTEGER NOT NULL,
-                    dislike INTEGER NOT NULL
+                    message_id BIGINT NOT NULL 
                 ); """
         cursor = connection.cursor()
         print("databaza yaratildi")
@@ -47,12 +46,54 @@ def Add_db(chat_id, message_id, like, dislike):
             print("Sqlite ish foalyatini tugatdi")                
 
 
+def AddUser(user_id ,chat_id, message_id):
+    try:
+        with sqlite3.connect("sqlite3.db") as connection:
+            cursor = connection.cursor()
+            
+            table = '''
+                INSERT INTO Users(user_id ,chat_id, message_id) VALUES( ?, ?, ?)
+            '''
+            cursor.execute(table, (user_id ,chat_id, message_id))
+            connection.commit()
+            print("SQLite tablega qo'shildi")
+            cursor.close()
+
+    except sqlite3.Error as error:
+        print("Error while creating a sqlite table", error)
+    finally:
+        if connection:
+            connection.close()
+            print("Sqlite ish foalyatini tugatdi")                
+
+
 def Read_db():
     try:
         with sqlite3.connect("sqlite3.db") as sqliteconnection:
             cursor = sqliteconnection.cursor()
             sql_query = """
                 SELECT * FROM Posts 
+            """
+        
+            cursor.execute(sql_query) 
+            A = cursor.fetchall()
+            print("table oqildi")
+            return A
+
+    except Error as error:
+        print("xatolik:", error)
+    finally:
+        if sqliteconnection:
+            sqliteconnection.close()
+            print("sqlite faoliyatini tugatdi")
+
+
+def ReadUser():
+    try:
+        with sqlite3.connect("sqlite3.db") as sqliteconnection:
+            cursor = sqliteconnection.cursor()
+            sql_query = """
+                SELECT * FROM Users 
             """
         
             cursor.execute(sql_query) 

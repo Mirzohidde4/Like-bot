@@ -1,11 +1,14 @@
 import logging
 from config import CHANEL_ID, TOKEN
-from aiogram import Bot
+from aiogram import Bot, html
 from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.enums import ParseMode
+from aiogram.client.default import DefaultBotProperties
+from datebase import ReadUser, AddUser
 
 
-bot = Bot(token=TOKEN)
+bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
 async def chatjoin(user_id: int) -> bool:
     btn = InlineKeyboardBuilder()
@@ -29,7 +32,7 @@ async def chatjoin(user_id: int) -> bool:
 
     if not is_subscribed:
         await bot.send_message(
-            chat_id=user_id, text="⚠️ <b>Botdan foydalanish uchun barcha kanallarga obuna bo'ling.</b>", reply_markup=btn.as_markup()
+            chat_id=user_id, text=f"⚠️ {html.bold('Botdan foydalanish uchun barcha kanallarga obuna bo\'ling.')}", reply_markup=btn.as_markup()
         )
         return False
     return True
