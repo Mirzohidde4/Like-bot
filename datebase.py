@@ -9,7 +9,8 @@ def create_table():
         table = """ CREATE TABLE Users (
                     user_id BIGINT NOT NULL ,
                     chat_id BIGINT NOT NULL ,
-                    message_id BIGINT NOT NULL 
+                    message_id BIGINT NOT NULL,
+                    click TEXT NOT NULL 
                 ); """
         cursor = connection.cursor()
         print("databaza yaratildi")
@@ -35,7 +36,7 @@ def Add_db(chat_id, message_id, like, dislike):
             '''
             cursor.execute(table, (chat_id, message_id, like, dislike))
             connection.commit()
-            print("SQLite tablega qo'shildi")
+            print("Post tablega qo'shildi")
             cursor.close()
 
     except sqlite3.Error as error:
@@ -43,20 +44,20 @@ def Add_db(chat_id, message_id, like, dislike):
     finally:
         if connection:
             connection.close()
-            print("Sqlite ish foalyatini tugatdi")                
+            # print("Sqlite ish foalyatini tugatdi")                
 
 
-def AddUser(user_id ,chat_id, message_id):
+def AddUser(user_id ,chat_id, message_id, click):
     try:
         with sqlite3.connect("sqlite3.db") as connection:
             cursor = connection.cursor()
             
             table = '''
-                INSERT INTO Users(user_id ,chat_id, message_id) VALUES( ?, ?, ?)
+                INSERT INTO Users(user_id ,chat_id, message_id, click) VALUES( ?, ?, ?, ?)
             '''
-            cursor.execute(table, (user_id ,chat_id, message_id))
+            cursor.execute(table, (user_id ,chat_id, message_id, click))
             connection.commit()
-            print("SQLite tablega qo'shildi")
+            print("User tablega qo'shildi")
             cursor.close()
 
     except sqlite3.Error as error:
@@ -64,7 +65,8 @@ def AddUser(user_id ,chat_id, message_id):
     finally:
         if connection:
             connection.close()
-            print("Sqlite ish foalyatini tugatdi")                
+            # print("Sqlite ish foalyatini tugatdi")   
+# AddUser(123, 456, 789, 'like')             
 
 
 def Read_db():
@@ -77,7 +79,7 @@ def Read_db():
         
             cursor.execute(sql_query) 
             A = cursor.fetchall()
-            print("table oqildi")
+            print("Posts table oqildi")
             return A
 
     except Error as error:
@@ -85,7 +87,7 @@ def Read_db():
     finally:
         if sqliteconnection:
             sqliteconnection.close()
-            print("sqlite faoliyatini tugatdi")
+            # print("sqlite faoliyatini tugatdi")
 
 
 def ReadUser():
@@ -98,7 +100,7 @@ def ReadUser():
         
             cursor.execute(sql_query) 
             A = cursor.fetchall()
-            print("table oqildi")
+            print("User table oqildi")
             return A
 
     except Error as error:
@@ -106,7 +108,7 @@ def ReadUser():
     finally:
         if sqliteconnection:
             sqliteconnection.close()
-            print("sqlite faoliyatini tugatdi")
+            # print("sqlite faoliyatini tugatdi")
 
 
 def UpdateLike(like, chat_id, message_id):
@@ -117,7 +119,7 @@ def UpdateLike(like, chat_id, message_id):
                 "UPDATE Posts SET like = ? WHERE (chat_id, message_id) = (?, ?)", (like, chat_id, message_id)
             )
             con.commit()
-            print("mahsulot soni yangilandi")
+            print("like soni yangilandi")
             cur.close()
 
     except sqlite3.Error as err:
@@ -125,7 +127,7 @@ def UpdateLike(like, chat_id, message_id):
     finally:
         if con:
             con.close()
-            print("Sqlite ish foalyatini tugatdi")  
+            # print("Sqlite ish foalyatini tugatdi")  
 
 
 def UpdateDislike(dislike, chat_id, message_id):
@@ -136,7 +138,7 @@ def UpdateDislike(dislike, chat_id, message_id):
                 "UPDATE Posts SET dislike = ? WHERE (chat_id, message_id) = (?, ?)", (dislike, chat_id, message_id)
             )
             con.commit()
-            print("mahsulot soni yangilandi")
+            print("dislike soni yangilandi")
             cur.close()
 
     except sqlite3.Error as err:
@@ -144,4 +146,45 @@ def UpdateDislike(dislike, chat_id, message_id):
     finally:
         if con:
             con.close()
-            print("Sqlite ish foalyatini tugatdi")  
+            # print("Sqlite ish foalyatini tugatdi")  
+
+
+def UpdateUser(user_id ,chat_id, message_id, click):
+    try:
+        with sqlite3.connect("sqlite3.db") as con:
+            cur = con.cursor()
+            cur.execute(
+                "UPDATE Posts SET click = ? WHERE (user_id, chat_id, message_id) = (?, ?, ?)", (click, user_id ,chat_id, message_id)
+            )
+            con.commit()
+            print("user soni yangilandi")
+            cur.close()
+
+    except sqlite3.Error as err:
+        print(f"Yangilashda xatolik: {err}")
+    finally:
+        if con:
+            con.close()
+            # print("Sqlite ish foalyatini tugatdi")  
+
+
+def DeleteUser(user_id, chat_id, message_id):
+    try:
+        connection = sqlite3.connect('sqlite3.db')
+        cursor = connection.cursor()
+
+        table = '''
+            DELETE FROM Users WHERE (user_id, chat_id, message_id) = (?, ?, ?)
+        '''
+        cursor.execute(table, (user_id, chat_id, message_id))
+        connection.commit()
+        print("User tabledan o'chirildi")
+        cursor.close()
+    
+    except sqlite3.Error as error:
+        print("Error while creating a sqlite table", error)
+    finally:
+        if connection:
+            connection.close()
+            # print("Sqlite ish foalyatini tugatdi")
+# DeleteUser(123, 456, 789)

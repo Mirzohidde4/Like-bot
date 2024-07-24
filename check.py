@@ -31,9 +31,14 @@ async def chatjoin(user_id: int) -> bool:
     btn.adjust(1)
 
     if not is_subscribed:
-        await bot.send_message(
-            chat_id=user_id, text=f"⚠️ {html.bold('Botdan foydalanish uchun barcha kanallarga obuna bo\'ling.')}", reply_markup=btn.as_markup()
-        )
+        if len(CHANEL_ID) >= 2:
+            await bot.send_message(
+                chat_id=user_id, text=f"⚠️ {html.bold('Botdan foydalanish uchun barcha kanallarga obuna bo\'ling.')}", reply_markup=btn.as_markup()
+            )
+        else:
+            await bot.send_message(
+                chat_id=user_id, text=f"⚠️ {html.bold('Botdan foydalanish uchun kanalga obuna bo\'ling.')}", reply_markup=btn.as_markup()
+            )   
         return False
     return True
 

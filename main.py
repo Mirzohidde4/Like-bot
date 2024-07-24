@@ -7,7 +7,15 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.context import FSMContext
 from config import TOKEN
 from check import chatjoin, canal, menu
-from datebase import Add_db, Read_db, UpdateLike, UpdateDislike, AddUser, ReadUser 
+from datebase import (
+    Add_db, 
+    Read_db, 
+    UpdateLike, 
+    UpdateDislike, 
+    AddUser, 
+    ReadUser,
+    DeleteUser
+)     
 
 
 logging.basicConfig(level=logging.INFO)
@@ -24,7 +32,7 @@ async def start(message: Message):
             text=f"""
                 🤝 Assalomu alaykum {html.bold(user)}.
 
-👍/👎- <b>Bot yordamida kanalingizga tashlangan postlaringizga like va dislike tugmalarini qo'yishingiz mumkin.</b>
+👍/👎- <b>Bot yordamida kanalingizga tashlangan xabarlaringizga like va dislike tugmalarini qo'yishingiz mumkin.</b>
             """,
             reply_markup=canal.as_markup()
         )
@@ -40,7 +48,7 @@ async def result(call: CallbackQuery):
             text=f"""
                 🤝 Assalomu alaykum {html.bold(user)} xush kelibsiz, botdan foydalanishingiz mumkin.
 
-👍/👎- <b>Bot yordamida kanalingizga tashlangan postlaringizga like va dislike tugmalarini qo'yishingiz mumkin.</b>
+👍/👎- <b>Bot yordamida kanalingizga tashlangan xabarlaringizga like va dislike tugmalarini qo'yishingiz mumkin.</b>
             """,
             reply_markup=canal.as_markup()
         )
@@ -57,7 +65,7 @@ async def qoshish(call: CallbackQuery, state: FSMContext):
             text="""
                 🏠 <b>Asosiy menyu.
 
-👍/👎- Bot yordamida kanalingizga tashlangan postlaringizga like va dislike tugmalarini qo'yishingiz mumkin.</b>
+👍/👎- Bot yordamida kanalingizga tashlangan xabarlaringizga like va dislike tugmalarini qo'yishingiz mumkin.</b>
             """,
             reply_markup=canal.as_markup()
         )
@@ -74,7 +82,7 @@ async def qoshish(call: CallbackQuery, state: FSMContext):
     
 
 @dp.channel_post()
-async def echo_handler(message: Message):
+async def post(message: Message):
     Add_db(chat_id=message.chat.id, message_id=message.message_id, like=0, dislike=0)
     await bot.edit_message_text(
         chat_id=str(message.chat.id),
@@ -89,20 +97,68 @@ async def echo_handler(message: Message):
 
 
 @dp.callback_query(F.data.startswith('post'))
-async def edt(call: CallbackQuery):
+async def edit(call: CallbackQuery):
     action = call.data.split('_')
     btn = action[1]
 
     users = ReadUser()
     for user in users:
         if (user[0] == call.from_user.id) and (user[1] == call.message.chat.id) and (user[2] == call.message.message_id):
-            await call.answer(text="siz boshqa ovoz bera olmaysiz")
-            return
+            variant = user[3]
+
+            if variant != btn:
+                await call.answer(text="Ovoz bergansiz")
+                return
+
+            elif (btn == 'like') and (variant == btn):
+                posts = Read_db()
+                for post in posts:
+                    if (post[0] == call.message.chat.id) and (post[1] == call.message.message_id):
+                        like = int(post[2]) - 1
+                        dislike = post[3]
+                        UpdateLike(like=like, chat_id=call.message.chat.id, message_id=call.message.message_id)                        
+                        DeleteUser(user_id=call.from_user.id, chat_id=call.message.chat.id, message_id=call.message.message_id)
+
+                        txt = call.message.text
+                        await bot.edit_message_text(
+                            chat_id=str(call.message.chat.id),
+                            message_id=str(call.message.message_id),
+                            text=txt,                    
+                            reply_markup=InlineKeyboardMarkup(
+                                inline_keyboard=[
+                                    [InlineKeyboardButton(text=f"👍{like}", callback_data='post_like'), InlineKeyboardButton(text=f"👎{dislike}", callback_data='post_dislike')]
+                                ]
+                            )
+                        )
+                        await call.answer(text="👍-1 @likeipostbot")
+        
+            elif (variant == 'dislike') and (variant == btn):
+                posts = Read_db()
+                for post in posts:
+                    if (post[0] == call.message.chat.id) and (post[1] == call.message.message_id):
+                        like = post[2]
+                        dislike = post[3] - 1
+                        UpdateDislike(dislike=dislike, chat_id=call.message.chat.id, message_id=call.message.message_id)
+                        DeleteUser(user_id=call.from_user.id, chat_id=call.message.chat.id, message_id=call.message.message_id)
+
+                        txt = call.message.text
+                        await bot.edit_message_text(
+                            chat_id=str(call.message.chat.id),
+                            message_id=str(call.message.message_id),
+                            text=txt,                    
+                            reply_markup=InlineKeyboardMarkup(
+                                inline_keyboard=[
+                                    [InlineKeyboardButton(text=f"👍{like}", callback_data='post_like'), InlineKeyboardButton(text=f"👎{dislike}", callback_data='post_dislike')]
+                                ]
+                            )
+                        )
+                        await call.answer(text="👎-1 @likeipostbot")
+            return                
+            
     else:    
-        AddUser(user_id=call.from_user.id, chat_id=call.message.chat.id, message_id=call.message.message_id)    
+        AddUser(user_id=call.from_user.id, chat_id=call.message.chat.id, message_id=call.message.message_id, click=btn)    
 
         if btn == 'like':
-
             posts = Read_db()
             for post in posts:
                 if (post[0] == call.message.chat.id) and (post[1] == call.message.message_id):
@@ -142,7 +198,7 @@ async def edt(call: CallbackQuery):
                             ]
                         )
                     )
-                    await call.answer(text="👍+1 @likeipostbot")
+                    await call.answer(text="👎+1 @likeipostbot")
 
 
 
