@@ -1,12 +1,20 @@
 import asyncio, logging
 from aiogram import Bot, Dispatcher, F, html
-from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters.command import CommandStart
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.context import FSMContext
 from config import TOKEN
 from check import chatjoin, canal, menu
+from aiogram.types import (
+    Message, 
+    CallbackQuery, 
+    InlineKeyboardMarkup, 
+    InlineKeyboardButton, 
+    InputMediaVideo, 
+    InputMediaPhoto,
+    InputMediaDocument
+)
 from datebase import (
     Add_db, 
     Read_db, 
@@ -55,7 +63,7 @@ async def result(call: CallbackQuery):
 
 
 @dp.callback_query(F.data.startswith('canal_'))
-async def qoshish(call: CallbackQuery, state: FSMContext):
+async def qoshish(call: CallbackQuery):
     await call.message.delete()
     action = call.data.split('_')
     second = action[1]
@@ -81,19 +89,69 @@ async def qoshish(call: CallbackQuery, state: FSMContext):
         )
     
 
+# @dp.channel_post()
+# async def post(message: Message):
+#     Add_db(chat_id=message.chat.id, message_id=message.message_id, like=0, dislike=0)
+#     await bot.edit_message_text(
+#         chat_id=str(message.chat.id),
+#         message_id=str(message.message_id),
+#         text=message.text,
+#         reply_markup=InlineKeyboardMarkup(
+#             inline_keyboard=[
+#                 [InlineKeyboardButton(text="👍", callback_data='post_like'), InlineKeyboardButton(text="👎", callback_data='post_dislike')]
+#             ]
+#         )
+#     )
+
 @dp.channel_post()
 async def post(message: Message):
     Add_db(chat_id=message.chat.id, message_id=message.message_id, like=0, dislike=0)
-    await bot.edit_message_text(
-        chat_id=str(message.chat.id),
-        message_id=str(message.message_id),
-        text=message.text,
-        reply_markup=InlineKeyboardMarkup(
-            inline_keyboard=[
-                [InlineKeyboardButton(text="👍", callback_data='post_like'), InlineKeyboardButton(text="👎", callback_data='post_dislike')]
-            ]
-        )
+    reply_markup = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="👍", callback_data='post_like'), InlineKeyboardButton(text="👎", callback_data='post_dislike')]
+        ]
     )
+
+    if message.text:
+        await bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=message.message_id,
+            text=message.text,
+            reply_markup=reply_markup
+        )
+
+    elif message.photo:
+        await bot.edit_message_media(
+            media=InputMediaPhoto(
+                media=message.photo[-1].file_id,
+                caption=message.caption or ''
+            ),
+            chat_id=message.chat.id,
+            message_id=message.message_id,
+            reply_markup=reply_markup
+        )
+
+    elif message.video:
+        await bot.edit_message_media(
+            media=InputMediaVideo(
+                media=message.video.file_id,
+                caption=message.caption or ''
+            ),
+            chat_id=message.chat.id,
+            message_id=message.message_id,
+            reply_markup=reply_markup
+        )
+
+    elif message.document:
+        await bot.edit_message_media(
+            media=InputMediaDocument(
+                media=message.document.file_id,
+                caption=message.caption or ''
+            ),
+            chat_id=message.chat.id,
+            message_id=message.message_id,
+            reply_markup=reply_markup
+        )
 
 
 @dp.callback_query(F.data.startswith('post'))

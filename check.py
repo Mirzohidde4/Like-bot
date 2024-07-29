@@ -50,4 +50,5 @@ canal.adjust(1)
 
 
 menu = InlineKeyboardBuilder()
+menu.add(InlineKeyboardButton(text='➕ Kanalga admin qilish', url='https://t.me/likeipostbot?startchannel=new'))
 menu.add(InlineKeyboardButton(text='🔝 Asosiy menyu', callback_data='canal_main'))
