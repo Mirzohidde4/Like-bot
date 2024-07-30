@@ -5,7 +5,6 @@ from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
-from datebase import ReadUser, AddUser
 
 
 bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))

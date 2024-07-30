@@ -89,20 +89,6 @@ async def qoshish(call: CallbackQuery):
         )
     
 
-# @dp.channel_post()
-# async def post(message: Message):
-#     Add_db(chat_id=message.chat.id, message_id=message.message_id, like=0, dislike=0)
-#     await bot.edit_message_text(
-#         chat_id=str(message.chat.id),
-#         message_id=str(message.message_id),
-#         text=message.text,
-#         reply_markup=InlineKeyboardMarkup(
-#             inline_keyboard=[
-#                 [InlineKeyboardButton(text="👍", callback_data='post_like'), InlineKeyboardButton(text="👎", callback_data='post_dislike')]
-#             ]
-#         )
-#     )
-
 @dp.channel_post()
 async def post(message: Message):
     Add_db(chat_id=message.chat.id, message_id=message.message_id, like=0, dislike=0)
@@ -114,43 +100,43 @@ async def post(message: Message):
 
     if message.text:
         await bot.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=message.message_id,
-            text=message.text,
+            chat_id = message.chat.id,
+            message_id = message.message_id,
+            text = message.text,
             reply_markup=reply_markup
         )
 
     elif message.photo:
         await bot.edit_message_media(
-            media=InputMediaPhoto(
-                media=message.photo[-1].file_id,
-                caption=message.caption or ''
+            media = InputMediaPhoto(
+                media = message.photo[-1].file_id,
+                caption = message.caption or ''
             ),
-            chat_id=message.chat.id,
-            message_id=message.message_id,
-            reply_markup=reply_markup
-        )
+            chat_id = message.chat.id,
+            message_id = message.message_id,
+            reply_markup = reply_markup
+        )    
 
     elif message.video:
         await bot.edit_message_media(
-            media=InputMediaVideo(
-                media=message.video.file_id,
-                caption=message.caption or ''
+            media = InputMediaVideo(
+                media = message.video.file_id,
+                caption = message.caption or ''
             ),
-            chat_id=message.chat.id,
-            message_id=message.message_id,
-            reply_markup=reply_markup
+            chat_id = message.chat.id,
+            message_id = message.message_id,
+            reply_markup = reply_markup
         )
 
     elif message.document:
         await bot.edit_message_media(
-            media=InputMediaDocument(
-                media=message.document.file_id,
-                caption=message.caption or ''
+            media = InputMediaDocument(
+                media = message.document.file_id,
+                caption = message.caption or ''
             ),
-            chat_id=message.chat.id,
-            message_id=message.message_id,
-            reply_markup=reply_markup
+            chat_id = message.chat.id,
+            message_id = message.message_id,
+            reply_markup = reply_markup
         )
 
 
@@ -177,17 +163,52 @@ async def edit(call: CallbackQuery):
                         UpdateLike(like=like, chat_id=call.message.chat.id, message_id=call.message.message_id)                        
                         DeleteUser(user_id=call.from_user.id, chat_id=call.message.chat.id, message_id=call.message.message_id)
 
-                        txt = call.message.text
-                        await bot.edit_message_text(
-                            chat_id=str(call.message.chat.id),
-                            message_id=str(call.message.message_id),
-                            text=txt,                    
-                            reply_markup=InlineKeyboardMarkup(
-                                inline_keyboard=[
-                                    [InlineKeyboardButton(text=f"👍{like}", callback_data='post_like'), InlineKeyboardButton(text=f"👎{dislike}", callback_data='post_dislike')]
-                                ]
-                            )
+                        reply_markup = InlineKeyboardMarkup(
+                            inline_keyboard=[
+                                [InlineKeyboardButton(text=f"👍{like}", callback_data='post_like'), InlineKeyboardButton(text=f"👎{dislike}", callback_data='post_dislike')]
+                            ]
                         )
+
+                        if call.message.text:
+                            await bot.edit_message_text(
+                                chat_id = call.message.chat.id,
+                                message_id = call.message.message_id,
+                                text = call.message.text,
+                                reply_markup=reply_markup
+                            )
+
+                        elif call.message.photo:
+                            await bot.edit_message_media(
+                                media = InputMediaPhoto(
+                                    media = call.message.photo[-1].file_id,
+                                    caption = call.message.caption or ''
+                                ),
+                                chat_id = call.message.chat.id,
+                                message_id = call.message.message_id,
+                                reply_markup = reply_markup
+                            )
+
+                        elif call.message.video:
+                            await bot.edit_message_media(
+                                media = InputMediaVideo(
+                                    media = call.message.video.file_id,
+                                    caption = call.message.caption or ''
+                                ),
+                                chat_id = call.message.chat.id,
+                                message_id = call.message.message_id,
+                                reply_markup = reply_markup
+                            )
+
+                        elif call.message.document:
+                            await bot.edit_message_media(
+                                media = InputMediaDocument(
+                                    media = call.message.document.file_id,
+                                    caption = call.message.caption or ''
+                                ),
+                                chat_id = call.message.chat.id,
+                                message_id = call.message.message_id,
+                                reply_markup = reply_markup
+                            )
                         await call.answer(text="👍-1 @likeipostbot")
         
             elif (variant == 'dislike') and (variant == btn):
@@ -199,17 +220,52 @@ async def edit(call: CallbackQuery):
                         UpdateDislike(dislike=dislike, chat_id=call.message.chat.id, message_id=call.message.message_id)
                         DeleteUser(user_id=call.from_user.id, chat_id=call.message.chat.id, message_id=call.message.message_id)
 
-                        txt = call.message.text
-                        await bot.edit_message_text(
-                            chat_id=str(call.message.chat.id),
-                            message_id=str(call.message.message_id),
-                            text=txt,                    
-                            reply_markup=InlineKeyboardMarkup(
-                                inline_keyboard=[
-                                    [InlineKeyboardButton(text=f"👍{like}", callback_data='post_like'), InlineKeyboardButton(text=f"👎{dislike}", callback_data='post_dislike')]
-                                ]
-                            )
+                        reply_markup = InlineKeyboardMarkup(
+                            inline_keyboard=[
+                                [InlineKeyboardButton(text=f"👍{like}", callback_data='post_like'), InlineKeyboardButton(text=f"👎{dislike}", callback_data='post_dislike')]
+                            ]
                         )
+
+                        if call.message.text:
+                            await bot.edit_message_text(
+                                chat_id = call.message.chat.id,
+                                message_id = call.message.message_id,
+                                text = call.message.text,
+                                reply_markup=reply_markup
+                            )
+
+                        elif call.message.photo:
+                            await bot.edit_message_media(
+                                media = InputMediaPhoto(
+                                    media = call.message.photo[-1].file_id,
+                                    caption = call.message.caption or ''
+                                ),
+                                chat_id = call.message.chat.id,
+                                message_id = call.message.message_id,
+                                reply_markup = reply_markup
+                            )
+
+                        elif call.message.video:
+                            await bot.edit_message_media(
+                                media = InputMediaVideo(
+                                    media = call.message.video.file_id,
+                                    caption = call.message.caption or ''
+                                ),
+                                chat_id = call.message.chat.id,
+                                message_id = call.message.message_id,
+                                reply_markup = reply_markup
+                            )
+
+                        elif call.message.document:
+                            await bot.edit_message_media(
+                                media = InputMediaDocument(
+                                    media = call.message.document.file_id,
+                                    caption = call.message.caption or ''
+                                ),
+                                chat_id = call.message.chat.id,
+                                message_id = call.message.message_id,
+                                reply_markup = reply_markup
+                            )
                         await call.answer(text="👎-1 @likeipostbot")
             return                
             
@@ -224,17 +280,52 @@ async def edit(call: CallbackQuery):
                     dislike = post[3]
                     UpdateLike(like=like, chat_id=call.message.chat.id, message_id=call.message.message_id)
                     
-                    txt = call.message.text
-                    await bot.edit_message_text(
-                        chat_id=str(call.message.chat.id),
-                        message_id=str(call.message.message_id),
-                        text=txt,                    
-                        reply_markup=InlineKeyboardMarkup(
-                            inline_keyboard=[
-                                [InlineKeyboardButton(text=f"👍{like}", callback_data='post_like'), InlineKeyboardButton(text=f"👎{dislike}", callback_data='post_dislike')]
-                            ]
-                        )
+                    reply_markup = InlineKeyboardMarkup(
+                        inline_keyboard=[
+                            [InlineKeyboardButton(text=f"👍{like}", callback_data='post_like'), InlineKeyboardButton(text=f"👎{dislike}", callback_data='post_dislike')]
+                        ]
                     )
+
+                    if call.message.text:
+                        await bot.edit_message_text(
+                            chat_id = call.message.chat.id,
+                            message_id = call.message.message_id,
+                            text = call.message.text,
+                            reply_markup=reply_markup
+                        )
+
+                    elif call.message.photo:
+                        await bot.edit_message_media(
+                            media = InputMediaPhoto(
+                                media = call.message.photo[-1].file_id,
+                                caption = call.message.caption or ''
+                            ),
+                            chat_id = call.message.chat.id,
+                            message_id = call.message.message_id,
+                            reply_markup = reply_markup
+                        )
+
+                    elif call.message.video:
+                        await bot.edit_message_media(
+                            media = InputMediaVideo(
+                                media = call.message.video.file_id,
+                                caption = call.message.caption or ''
+                            ),
+                            chat_id = call.message.chat.id,
+                            message_id = call.message.message_id,
+                            reply_markup = reply_markup
+                        )
+
+                    elif call.message.document:
+                        await bot.edit_message_media(
+                            media = InputMediaDocument(
+                                media = call.message.document.file_id,
+                                caption = call.message.caption or ''
+                            ),
+                            chat_id = call.message.chat.id,
+                            message_id = call.message.message_id,
+                            reply_markup = reply_markup
+                        )
                     await call.answer(text="👍+1 @likeipostbot")
         
         elif btn == 'dislike':
@@ -245,21 +336,53 @@ async def edit(call: CallbackQuery):
                     dislike = post[3] + 1
                     UpdateDislike(dislike=dislike, chat_id=call.message.chat.id, message_id=call.message.message_id)
 
-                    txt = call.message.text
-                    await bot.edit_message_text(
-                        chat_id=str(call.message.chat.id),
-                        message_id=str(call.message.message_id),
-                        text=txt,                    
-                        reply_markup=InlineKeyboardMarkup(
-                            inline_keyboard=[
-                                [InlineKeyboardButton(text=f"👍{like}", callback_data='post_like'), InlineKeyboardButton(text=f"👎{dislike}", callback_data='post_dislike')]
-                            ]
-                        )
+                    reply_markup = InlineKeyboardMarkup(
+                        inline_keyboard=[
+                            [InlineKeyboardButton(text=f"👍{like}", callback_data='post_like'), InlineKeyboardButton(text=f"👎{dislike}", callback_data='post_dislike')]
+                        ]
                     )
+
+                    if call.message.text:
+                        await bot.edit_message_text(
+                            chat_id = call.message.chat.id,
+                            message_id = call.message.message_id,
+                            text = call.message.text,
+                            reply_markup=reply_markup
+                        )
+
+                    elif call.message.photo:
+                        await bot.edit_message_media(
+                            media = InputMediaPhoto(
+                                media = call.message.photo[-1].file_id,
+                                caption = call.message.caption or ''
+                            ),
+                            chat_id = call.message.chat.id,
+                            message_id = call.message.message_id,
+                            reply_markup = reply_markup
+                        )
+
+                    elif call.message.video:
+                        await bot.edit_message_media(
+                            media = InputMediaVideo(
+                                media = call.message.video.file_id,
+                                caption = call.message.caption or ''
+                            ),
+                            chat_id = call.message.chat.id,
+                            message_id = call.message.message_id,
+                            reply_markup = reply_markup
+                        )
+
+                    elif call.message.document:
+                        await bot.edit_message_media(
+                            media = InputMediaDocument(
+                                media = call.message.document.file_id,
+                                caption = call.message.caption or ''
+                            ),
+                            chat_id = call.message.chat.id,
+                            message_id = call.message.message_id,
+                            reply_markup = reply_markup
+                        )
                     await call.answer(text="👎+1 @likeipostbot")
-
-
-
 
 
 
