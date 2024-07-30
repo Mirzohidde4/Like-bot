@@ -44,7 +44,6 @@ async def chatjoin(user_id: int) -> bool:
 
 canal = InlineKeyboardBuilder()
 canal.add(InlineKeyboardButton(text='💫 Botdan foydalanish', callback_data='canal_admin'))
-canal.add(InlineKeyboardButton(text='👤 Admin', url="https://t.me/xudoybergan0v"))
 canal.adjust(1)
 
 
