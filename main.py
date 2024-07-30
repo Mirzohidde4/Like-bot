@@ -60,6 +60,8 @@ async def result(call: CallbackQuery):
             """,
             reply_markup=canal.as_markup()
         )
+    else:
+        await call.answer(text="Iltimos kanalga obuna bo'ling")    
 
 
 @dp.callback_query(F.data.startswith('canal_'))
