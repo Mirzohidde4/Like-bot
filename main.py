@@ -170,7 +170,7 @@ async def edit(call: CallbackQuery):
                                 [InlineKeyboardButton(text=f"👍{like}", callback_data='post_like'), InlineKeyboardButton(text=f"👎{dislike}", callback_data='post_dislike')]
                             ]
                         )
-
+    
                         if call.message.text:
                             await bot.edit_message_text(
                                 chat_id = call.message.chat.id,
